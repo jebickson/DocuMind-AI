@@ -1,0 +1,16 @@
+
+streamlit
+pymupdf
+faiss-cpu
+numpy
+ollama
+python-dotenv
+pytest
+
+streamlit
+pymupdf
+faiss-cpu
+numpy
+ollama
+python-dotenv
+pytest
