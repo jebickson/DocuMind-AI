@@ -30,3 +30,13 @@ vector_store/*
 Thumbs.db
 
 .venv312/
+
+# Web application and credentials
+node_modules/
+.next/
+.vercel/
+.env.*
+!.env.example
+web/public/pdfjs/
+web/public/sample.pdf
+*.tsbuildinfo
