@@ -86,10 +86,7 @@ def is_meta_statement(text: str) -> bool:
 
 
 def extract_claims(answer: str) -> List[str]:
-    """
-    Split an answer into sentence-like claims.
-    This lightweight splitter is not a full linguistic parser.
-    """
+    """Split an answer into sentence-like claims."""
     if not answer:
         return []
 
@@ -131,11 +128,7 @@ def find_best_evidence(
     results: List[Dict[str, Any]],
     top_n: int = 2,
 ) -> List[Dict[str, Any]]:
-    """
-    Rank retrieved chunks by keyword overlap and return the best
-    passages to give the local verifier. Ranking is only used to
-    select candidate evidence; Ollama makes the semantic judgment.
-    """
+    """Rank retrieved chunks by keyword overlap to select candidate evidence."""
     claim_words = tokenize(claim)
 
     if not claim_words or not results:
@@ -170,12 +163,7 @@ def verify_claim_with_ollama(
     claim: str,
     evidence_items: List[Dict[str, Any]],
 ) -> Dict[str, Any]:
-    """
-    Ask the local Ollama model whether the supplied PDF passages
-    support, contradict, or fail to establish a claim.
-
-    Model judgments are estimates, not guaranteed fact checks.
-    """
+    """Ask Ollama whether the supplied PDF passages support the claim."""
     if not evidence_items:
         return {
             "semantic_status": "insufficient_evidence",
@@ -203,8 +191,7 @@ Decide whether the PDF evidence supports the claim.
 
 Use ONLY the evidence passages below. Do not use outside knowledge.
 A shared keyword is NOT enough to establish support.
-A claim is supported only when the evidence directly states it or clearly
-entails it.
+A claim is supported only when the evidence directly states it or clearly entails it.
 A claim is contradicted only when the evidence clearly states the opposite.
 If the passages do not establish either conclusion, use insufficient_evidence.
 Do not treat missing information as contradiction.
@@ -279,16 +266,7 @@ def verify_claims(
     answer: str,
     results: List[Dict[str, Any]],
 ) -> List[Dict[str, Any]]:
-    """
-    Verify extracted claims against their best candidate passages.
-
-    `status` remains compatible with the existing app:
-      supported -> supported
-      contradicted -> unsupported
-      insufficient_evidence -> uncertain
-
-    `semantic_status` contains the more precise new verdict.
-    """
+    """Verify extracted claims against their best candidate passages."""
     verification_results = []
     claims = extract_claims(answer)
 
@@ -343,7 +321,7 @@ def verify_claims(
             "evidence": best_evidence["evidence"],
             "source": best_evidence["source"],
             "page_number": best_evidence["page_number"],
-            "evidence_passages": evidence_items,
+            "evidence_passages": [item["evidence"] for item in evidence_items], # ALIGNED WITH UI
         })
 
     if len(claims) > MAX_CLAIMS_TO_VERIFY:
@@ -375,12 +353,7 @@ def validate_answer(
     answer: str,
     results: List[Dict[str, Any]],
 ) -> Dict[str, Any]:
-    """
-    Preserve the existing validate_answer(answer, results) interface.
-
-    Page citations are checked against retrieved pages. Claims are
-    checked with local Ollama semantic verification.
-    """
+    """Preserve the existing validate_answer(answer, results) interface."""
     warnings = []
 
     if not answer or not answer.strip():
@@ -426,7 +399,7 @@ def validate_answer(
         )
 
     if not cited_pages:
-        warnings.append("No PDF page references were included.")
+        print("Debug: No page citations found in answer.")
 
     claim_verification = verify_claims(answer, results)
 
@@ -474,8 +447,3 @@ def validate_answer(
         "cited_pages": sorted(cited_pages),
         "claim_verification": claim_verification,
     }
-
-
-# ============================================================
-# END OF DOCUMIND AI SEMANTIC ANSWER VALIDATOR
-# ============================================================
