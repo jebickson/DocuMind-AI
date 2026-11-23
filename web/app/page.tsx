@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { BookOpen, FileText, Plus, Sparkles, Upload, X, Search, ShieldCheck, CodeXml, MessageSquare, Trash2, Download, LoaderCircle, PanelLeftClose, PanelLeftOpen, Layers, Quote, Send, Check, CircleHelp } from 'lucide-react';
+import { BookOpen, FileText, Plus, Sparkles, Upload, X, Search, ShieldCheck, CodeXml, MessageSquare, Trash2, Download, LoaderCircle, PanelLeftClose, PanelLeftOpen, Layers, Quote, Send, Check, CircleHelp, Moon, Sun } from 'lucide-react';
 import { MAX_DOCUMENTS, SAMPLE, retrieve, extractiveAnswer, type Answer, type DocumentInfo, type Passage } from '@/lib/documents';
 import { readPdf } from '@/lib/pdf';
 
@@ -19,6 +19,20 @@ export default function Home() {
   const [sidebar, setSidebar] = useState(true);
   const [dragging, setDragging] = useState(false);
   const [help, setHelp] = useState(false);
+  const [dark, setDark] = useState(false);
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('jebickson-ai-theme') === 'dark';
+      setDark(saved);
+      document.documentElement.dataset.theme = saved ? 'dark' : 'light';
+    } catch { /* Storage may be disabled; the toggle still works. */ }
+  }, []);
+  function toggleTheme() {
+    const next = !dark;
+    setDark(next);
+    document.documentElement.dataset.theme = next ? 'dark' : 'light';
+    try { localStorage.setItem('jebickson-ai-theme', next ? 'dark' : 'light'); } catch {}
+  }
   const fileInput = useRef<HTMLInputElement>(null);
   const end = useRef<HTMLDivElement>(null);
   const request = useRef<AbortController | null>(null);
@@ -134,7 +148,7 @@ export default function Home() {
     </aside>
 
     <main className="main" inert={help}>
-      <header className="topbar"><div><button className="icon-button sidebar-toggle" onClick={() => setSidebar(!sidebar)} aria-label={sidebar ? 'Hide document sidebar' : 'Show document sidebar'}>{sidebar ? <PanelLeftClose size={20}/> : <PanelLeftOpen size={20}/>}<span className="mobile-source-label">Sources ({documents.length})</span></button><span className="breadcrumb">Your notebook <span>/</span> <strong>Reading room</strong></span></div><span className="workspace-badge"><ShieldCheck size={14}/> Free & private</span></header>
+      <header className="topbar"><div><button className="icon-button sidebar-toggle" onClick={() => setSidebar(!sidebar)} aria-label={sidebar ? 'Hide document sidebar' : 'Show document sidebar'}>{sidebar ? <PanelLeftClose size={20}/> : <PanelLeftOpen size={20}/>}<span className="mobile-source-label">Sources ({documents.length})</span></button><span className="breadcrumb">Your notebook <span>/</span> <strong>Reading room</strong></span></div><div className="header-options"><button className="theme-toggle" onClick={toggleTheme} aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'} aria-pressed={dark}>{dark ? <Sun size={17}/> : <Moon size={17}/>}<span>{dark ? 'Light mode' : 'Dark mode'}</span></button><span className="workspace-badge"><ShieldCheck size={14}/> Free & private</span></div></header>
       <div className="workspace-header"><div><div className="eyebrow">THE READER’S NOTEBOOK · JEBICKSON AI</div><h1>A notebook for<br/><span>curious minds.</span></h1><p>Your PDFs, their words. Find the passage you’re looking for.</p></div><div className="heading-icon"><Sparkles size={30}/></div></div>
 
       <div className={`workspace ${selected ? 'with-evidence' : ''}`}>
